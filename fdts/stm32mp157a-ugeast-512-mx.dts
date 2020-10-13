@@ -12,7 +12,7 @@
 #include <dt-bindings/pinctrl/stm32-pinfunc.h>
 #include <dt-bindings/clock/stm32mp1-clksrc.h>
 #include <dt-bindings/soc/st,stm32-etzpc.h>
-#include "stm32mp15-mx.dtsi"
+#include "stm32mp15-512-mx.dtsi"
 #include <dt-bindings/power/stm32mp1-power.h>
 #include "stm32mp157.dtsi"
 #include "stm32mp15xa.dtsi"
@@ -24,7 +24,7 @@
 
 / {
 model = "STMicroelectronics custom STM32CubeMX board";
-compatible = "st,stm32mp157a-ugeast-mx", "st,stm32mp157";
+compatible = "st,stm32mp157a-ugeast-512-mx", "st,stm32mp157a-ugeast-mx", "st,stm32mp157";
 
 /* USER CODE BEGIN root */
 
@@ -288,7 +288,7 @@ clocks {
 	DECPROT(STM32MP1_ETZPC_DMAMUX_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
 	DECPROT(STM32MP1_ETZPC_ETH_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
 	DECPROT(STM32MP1_ETZPC_TT_FDCAN_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
-	DECPROT(STM32MP1_ETZPC_FMC_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	//DECPROT(STM32MP1_ETZPC_FMC_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
 	DECPROT(STM32MP1_ETZPC_I2C2_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
 	DECPROT(STM32MP1_ETZPC_I2C4_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
 	DECPROT(STM32MP1_ETZPC_RNG1_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
@@ -329,8 +329,26 @@ clocks {
 	pinctrl-names = "default";
 	pinctrl-0 = <&fmc_pins_mx>;
 	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
 
 	/* USER CODE BEGIN fmc */
+		nand: nand@0 {
+		reg = <0>;
+		nand-on-flash-bbt;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+			partition@0 {
+				label = "nand-boot";
+				reg = <0x00000000 0x01400000>;
+			};
+
+			partition@1400000 {
+				label = "nand-fs";
+				reg = <0x01400000 0x1e000000>;
+			};
+		};
 	/* USER CODE END fmc */
 };
 
@@ -421,4 +439,3 @@ clocks {
 /* USER CODE BEGIN addons */
 
 /* USER CODE END addons */
-
