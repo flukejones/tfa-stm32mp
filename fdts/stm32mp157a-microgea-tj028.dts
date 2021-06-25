@@ -1,0 +1,303 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
+/*
+ * Copyright (C) STMicroelectronics 2019 - All Rights Reserved
+ * Author: Alexandre Torgue <alexandre.torgue@st.com> for STMicroelectronics.
+ */
+
+/dts-v1/;
+
+#include <dt-bindings/pinctrl/stm32-pinfunc.h>
+#include <dt-bindings/clock/stm32mp1-clksrc.h>
+#include <dt-bindings/soc/st,stm32-etzpc.h>
+#include <dt-bindings/power/stm32mp1-power.h>
+// DDR settings, used in relocation
+#include "stm32mp15-512-mx.dtsi"
+
+#include "stm32mp157.dtsi"
+#include "stm32mp15xa.dtsi"
+#include "stm32mp15xxac-pinctrl.dtsi"
+#include "stm32mp15-ddr.dtsi"
+
+/ {
+	model = "Engicam MicroGEA STM32MP1 TJ028 Board";
+	compatible = "engicam,microgea-stm32mp1-tj028",
+		     "engicam,microgea-stm32mp1", "st,stm32mp157";
+
+    aliases {
+	    serial0 = &uart4;
+	    serial1 = &usart3;
+	    serial2 = &uart7;
+    };
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+	
+	clocks {
+	    clk_lse: clk-lse {
+		    st,drive = < LSEDRV_MEDIUM_HIGH >;
+	    };
+
+	    clk_hse: clk-hse {
+	    };
+    };
+};
+
+&pinctrl {
+	rtc_pins_mx: rtc_mx-0 {
+		pins {
+			pinmux = <STM32_PINMUX('I', 8, ANALOG)>; /* RTC_LSCO */
+		};
+	};
+
+	uart4_pins_mx: uart4_mx-0 {
+		pins1 {
+			pinmux = <STM32_PINMUX('B', 2, AF8)>; /* UART4_RX */
+			bias-disable;
+		};
+		pins2 {
+			pinmux = <STM32_PINMUX('G', 11, AF6)>; /* UART4_TX */
+			bias-disable;
+			drive-push-pull;
+			slew-rate = <0>;
+		};
+	};
+
+	usart3_pins_mx: usart3_mx-0 {
+		pins1 {
+			pinmux = <STM32_PINMUX('B', 10, AF7)>; /* USART3_TX */
+			bias-disable;
+			drive-push-pull;
+			slew-rate = <0>;
+		};
+		pins2 {
+			pinmux = <STM32_PINMUX('B', 12, AF8)>; /* USART3_RX */
+			bias-disable;
+		};
+	};
+
+	usart6_pins_mx: usart6_mx-0 {
+		pins1 {
+			pinmux = <STM32_PINMUX('C', 6, AF7)>; /* USART6_TX */
+			bias-disable;
+			drive-push-pull;
+			slew-rate = <0>;
+		};
+		pins2 {
+			pinmux = <STM32_PINMUX('C', 7, AF7)>; /* USART6_RX */
+			bias-disable;
+		};
+	};
+};
+
+&pinctrl_z {
+	usart1_pins_z_mx: usart1_mx-0 {
+		pins1 {
+			pinmux = <STM32_PINMUX('Z', 6, AF7)>; /* USART1_RX */
+			bias-disable;
+		};
+		pins2 {
+			pinmux = <STM32_PINMUX('Z', 7, AF7)>; /* USART1_TX */
+			bias-disable;
+			drive-push-pull;
+			slew-rate = <0>;
+		};
+	};
+};
+
+&rcc {
+	st,csi-cal;
+	st,hsi-cal;
+	st,cal-sec = <60>;
+	st,clksrc = <
+		CLK_MPU_PLL1P
+		CLK_AXI_PLL2P
+		CLK_MCU_PLL3P
+		CLK_PLL12_HSE
+		CLK_PLL3_HSE
+		CLK_PLL4_HSE
+		CLK_RTC_LSE
+		CLK_MCO1_DISABLED
+		CLK_MCO2_DISABLED
+	>;
+	st,clkdiv = <
+		1 		/*MPU*/
+		1 		/*AXI*/
+		0 		/*MCU*/
+		1 		/*APB1*/
+		1 		/*APB2*/
+		1 		/*APB3*/
+		1 		/*APB4*/
+		1 		/*APB5*/
+		0 		/*RTC*/
+		0 		/*MCO1*/
+		0 		/*MCO2*/
+	>;
+	st,pkcs = <
+		CLK_CKPER_DISABLED
+		CLK_FMC_ACLK
+		CLK_ETH_PLL3Q
+		CLK_SDMMC12_HSI
+		CLK_STGEN_HSI
+		CLK_USBPHY_HSE
+		CLK_SPI2S1_DISABLED
+		CLK_SPI2S23_DISABLED
+		CLK_SPI45_DISABLED
+		CLK_SPI6_DISABLED
+		CLK_SDMMC3_HCLK2
+		CLK_USBO_USBPHY
+		CLK_ADC_PLL3Q
+		CLK_CEC_DISABLED
+		CLK_I2C12_HSI
+		CLK_I2C46_PCLK5
+		CLK_I2C35_CSI
+		CLK_UART1_HSI
+		CLK_UART24_HSE
+		CLK_UART35_PCLK1
+		CLK_UART6_PCLK2
+		CLK_UART78_PCLK1
+		CLK_SPDIF_DISABLED
+		CLK_FDCAN_HSE
+		CLK_SAI1_DISABLED
+		CLK_SAI2_PLL3Q
+		CLK_SAI3_DISABLED
+		CLK_SAI4_DISABLED
+		CLK_RNG1_CSI
+		CLK_LPTIM1_DISABLED
+		CLK_LPTIM23_DISABLED
+		CLK_LPTIM45_DISABLED
+	>;
+	pll1:st,pll@0 {
+		compatible = "st,stm32mp1-pll";
+		reg = <0>;
+		cfg = < 1 53 0 1 1 PQR(1,0,0) >;
+	};
+	pll2:st,pll@1 {
+		compatible = "st,stm32mp1-pll";
+		reg = <1>;
+		cfg = < 1 43 1 0 0 PQR(1,1,1) >;
+	};
+	pll3:st,pll@2 {
+		compatible = "st,stm32mp1-pll";
+		reg = <2>;
+		cfg = < 1 49 2 11 1 PQR(1,1,0) >;
+	};
+	pll4:st,pll@3 {
+		compatible = "st,stm32mp1-pll";
+		reg = <3>;
+		cfg = < 1 49 9 8 1 PQR(0,1,0) >;
+	};
+};
+
+&etzpc {
+	st,decprot = <
+	/*"Non Secured" peripherals*/
+	DECPROT(STM32MP1_ETZPC_ADC_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_DMA1_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_DMAMUX_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_ETH_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_TT_FDCAN_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	//DECPROT(STM32MP1_ETZPC_FMC_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_I2C2_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_I2C4_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_I2C5_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_RNG1_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_SAI2_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_SDMMC3_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_TIM12_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_UART4_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_UART7_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_UART8_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_USART1_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_USART3_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_USART6_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_OTG_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	/*"Secured" peripherals*/
+	DECPROT(STM32MP1_ETZPC_DDRCTRL_ID, DECPROT_S_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_DDRPHYC_ID, DECPROT_S_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_STGENC_ID, DECPROT_S_RW, DECPROT_UNLOCK)
+	/*"Mcu Isolation" peripherals*/
+	DECPROT(STM32MP1_ETZPC_DMA2_ID, DECPROT_MCU_ISOLATION, DECPROT_UNLOCK)
+	>;
+
+	secure-status = "okay";
+};
+
+&fmc {
+	pinctrl-names = "default";
+    pinctrl-0 = <&fmc_pins_a>; // Same pins as what engicam MX definition is
+    status = "okay";
+
+    nand-controller@4,0 {
+        status = "okay";
+
+        nand@0 {
+            reg = <0>;
+            nand-on-flash-bbt;
+            #address-cells = <1>;
+            #size-cells = <1>;
+        };
+    };
+};
+
+
+&iwdg2 {
+	status = "okay";
+	secure-status = "okay";
+};
+
+&rcc {
+	status = "okay";
+	secure-status = "okay";
+};
+
+&rng1 {
+	status = "okay";
+	secure-status = "okay";
+};
+
+&rtc {
+	pinctrl-names = "default";
+	pinctrl-0 = <&rtc_pins_mx>;
+	status = "okay";
+	secure-status = "okay";
+};
+
+&sdmmc1 {
+	pinctrl-names = "default";
+    pinctrl-0 = <&sdmmc1_b4_pins_a>;
+    disable-wp;
+    st,neg-edge;
+    bus-width = <4>;
+    vmmc-supply = <&v3v3>;
+	status = "okay";
+};
+
+&tamp {
+	status = "okay";
+	secure-status = "okay";
+};
+
+&uart4 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart4_pins_mx>;
+	status = "okay";
+};
+
+&usart1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&usart1_pins_z_mx>;
+	status = "okay";
+};
+
+&usart3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&usart3_pins_mx>;
+	status = "okay";
+};
+
+&usart6 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&usart6_pins_mx>;
+	status = "okay";
+};
